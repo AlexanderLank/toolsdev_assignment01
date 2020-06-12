@@ -1,37 +1,48 @@
 import webbrowser
 import nltk
+import newspaper
 from newspaper import Article
 
 userinput = input("Enter a keyword to filter:")
 
 
-url = 'https://www.theverge.com/21277231/ps5-playstation-5-game-trailers-launch-release-dates-sony-event'
-url2 = 'https://kotaku.com/the-hits-and-misses-of-the-ps5-reveal-event-1844006000'
-url3 = 'https://www.ign.com/articles/the-last-of-us-part-2-review'
+url = 'https://www.gamesradar.com/uk/search/?searchTerm='
+url2 = 'https://www.ign.com/search?q='
+url3 = 'https://www.theverge.com/search?q='
 
 
-def article_scraper(string):
-    article = Article(string)
+
+
+
+
+
+def article_filter(string):
+    collection = newspaper.build(string, memoize_articles = False)
     reader = open('news_summary.txt', 'a+')
 
-    article.download()
-    article.parse()
-    nltk.download('punkt')
-    article.nlp()
 
-    if userinput in article.keywords or userinput == '':
-        reader.write(article.title)
-        reader.write(' - ')
-        reader.writelines(article.authors)
-        reader.write('\n')
-        reader.write(article.summary + '\n')
-        reader.write('\n')
-        webbrowser.open(string)
+    ender = 0
+    for article in collection.articles:
+        article.download()
+        article.parse()
+        nltk.download('punkt')
+        article.nlp()
+        if userinput in article.keywords or userinput == '':
+            reader.write(article.title)
+            reader.write(' - ')
+            reader.writelines(article.authors)
+            reader.write('\n')
+            reader.write(article.summary + '\n')
+            reader.write('\n')
+            webbrowser.open(article.url)
+        if ender > 8:
+            break
+        ender = ender + 1
     reader.close()
 
 
-article_scraper(url)
-article_scraper(url2)
-article_scraper(url3)
+article_filter(url)
+article_filter(url2)
+article_filter(url3)
 
 print('success!')
